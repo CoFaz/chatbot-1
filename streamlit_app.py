@@ -8,7 +8,7 @@ FASTAPI_URL = "http://127.0.0.1:8000/"
 def get_response_from_backend(prompt):
     try:
         response = requests.post(FASTAPI_URL, json={"prompt": prompt})
-        return response.json().get("response", "No response")
+        return response.json()
     except requests.exceptions.RequestException as e:
         st.error(f"Error communicating with backend: {e}")
         return "Error: Could not connect to the backend."
