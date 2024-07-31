@@ -1,43 +1,41 @@
-import streamlit as st
-from openai import OpenAI
+mport streamlit as st
+import requests
 
-# Show title and description.
-st.title("💬 Chatbot")
-st.write(
-    "This is a simple chatbot that uses OpenAI's GPT-3.5 model to generate responses. "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-    "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
-)
-
+# FastAPI endpoint
 FASTAPI_URL = "http://127.0.0.1:8000/process"
 
+# Function to send user input to FastAPI and get response
 def get_response_from_backend(prompt):
     response = requests.post(FASTAPI_URL, json={"prompt": prompt})
     return response.json().get("response", "Error: No response from backend")
 
+# Title of the app
+st.title("Your Beekeeping assistant")
+
+# Container to display chat messages
+chat_container = st.container()
+
+# Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-    # Display the existing chat messages via `st.chat_message`.
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# Display existing messages in the chat
+with chat_container:
+    for message in st.session_state.messages:
+        st.write(message)
 
-    # Create a chat input field to allow the user to enter a message. This will display
-    # automatically at the bottom of the page.
-if prompt := st.chat_input("How do make your first honey?"):
+# Text input for user message
+user_input = st.text_input("Type your message here:")
 
-    # Store and display the current prompt.
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-         st.markdown(prompt)
+# Send button
+if st.button("Send"):
+    if user_input:
+        response = get_response_from_backend(user_input)
+        st.session_state.messages.append(f"You: {user_input}")
+        st.session_state.messages.append(f"Bot: {response}")
+        st.experimental_rerun()  # Rerun the app to update the chat display
 
-        # Generate a response using the OpenAI API.
-        stream = get_response_from_backend(prompt)
-        
-
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
-        with st.chat_message("assistant"):
-            response = st.write_stream(stream)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+# Clear chat button
+if st.button("Clear Chat"):
+    st.session_state.messages = []
+    st.experimental_rerun()
