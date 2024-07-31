@@ -6,8 +6,9 @@ FASTAPI_URL = "http://127.0.0.1:8000/process"
 
 # Function to send user input to FastAPI and get response
 def get_response_from_backend(prompt):
-    response = requests.post(FASTAPI_URL, json={"prompt": prompt})
-    return response.json().get("response", "Error: No response from backend")
+    try:
+        response = requests.post(FASTAPI_URL, json={"prompt": prompt})
+        return response.json().get("response", "Error: No response from backend")
     except requests.exceptions.RequestException as e:
         st.error(f"Error communicating with backend: {e}")
         return "Error: Could not connect to the backend."
