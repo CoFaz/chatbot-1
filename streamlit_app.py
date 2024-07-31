@@ -14,7 +14,7 @@ def get_response_from_backend(prompt):
         return "Error: Could not connect to the backend."
 
 # Title of the app
-st.title("Your Beekeeping assistant")
+st.title("🍯 Your Beekeeping assistant 🐝")
 
 # Container to display chat messages
 chat_container = st.container()
